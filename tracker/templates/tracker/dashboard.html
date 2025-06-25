@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <!--[if lt IE 7]>
+            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+
+
+
+{% extends 'tracker/base.html' %}
+{% block content %}
+<div class="container-box">
+    <!-- Your actual content here -->
+     <h2>Dashboard - Hello {{ request.user.username }}</h2>
+
+<!-- Add Entry Form -->
+<h3>Add Today's Health Data:</h3>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add Entry</button>
+</form>
+
+<hr>
+
+<!-- Data Table -->
+<h3>Your Previous Entries:</h3>
+<table border="1" cellpadding="5" cellspacing="0">
+    <tr>
+        <th>Date</th>
+        <th>Weight (kg)</th>
+        <th>Sleep (hrs)</th>
+        <th>BP</th>
+        <th>Sugar (mg/dL)</th>
+    </tr>
+    {% for entry in entries %}
+    <tr>
+        <td>{{ entry.date }}</td>
+        <td>{{ entry.weight }}</td>
+        <td>{{ entry.sleep_hours }}</td>
+        <td>{{ entry.blood_pressure }}</td>
+        <td>{{ entry.sugar_level }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">No entries yet.</td></tr>
+    {% endfor %}
+</table>
+
+<hr>
+
+<!-- Charts Section -->
+<h3>Your Health Progress</h3>
+
+<div style="width: 100%; max-width: 800px;">
+    <canvas id="weightChart" height="200"></canvas>
+</div>
+<br>
+<div style="width: 100%; max-width: 800px;">
+    <canvas id="sleepChart" height="200"></canvas>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    const labels = {{ dates|safe }};
+    const weightData = {{ weights|safe }};
+    const sleepData = {{ sleep_hours|safe }};
+
+    // Weight Chart
+    const weightChart = new Chart(document.getElementById('weightChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Weight (kg)',
+                data: weightData,
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+
+    // Sleep Chart
+    const sleepChart = new Chart(document.getElementById('sleepChart'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Sleep (hrs)',
+                data: sleepData,
+                borderColor: 'green',
+                backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                fill: true,
+                tension: 0.3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+</script>
+</div>
+{% endblock %}
+
+
+        
+        <script src="" async defer></script>
+    </body>
+</html>
